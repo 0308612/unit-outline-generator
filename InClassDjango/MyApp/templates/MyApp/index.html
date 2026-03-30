@@ -1,0 +1,31 @@
+<html>
+<head><title>{{ title }}</title></head>
+
+<body>
+    <form action="/VET/" method="post">
+        <!--{% csrf_token %}
+        {{ form }}-->
+        <input type="checkbox"><label>Delivrable as VET</label><br />
+    </form>
+    <strong>Teachers:</strong>
+    {% if content %}
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Teaching Area</th>
+            <th>Teaches VET</th>
+        </tr>
+        {% for teach in content %}
+        <tr>
+            <td>{{teach.Name}}</td>
+            <td>{{teach.Area}}</td>
+            <td>{{teach.VET}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <strong>No data!</strong>
+    {% endif %}
+    <a href="input.html">add teachers</a>
+</body>
+</html>
