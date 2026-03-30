@@ -1,4 +1,3 @@
-from xml.etree.ElementTree import tostring
 from django import forms
 
 from .models import teacher
@@ -11,4 +10,4 @@ class InputForm(forms.ModelForm):
 
         model = teacher
 
-        fields = ['Name', 'Area', 'VET']
+        fields = ['Name', 'Area', 'VET', 'PDF_Title', 'PDF_File']
