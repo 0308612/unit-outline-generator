@@ -1,13 +1,15 @@
-from ast import ImportFrom
+
+
 from urllib import request, response
 from xml.dom.minidom import Document
 from .models import teacher
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-import pypdf
+from pypdf import PdfReader
 
 from .models import teacher
 from .forms import InputForm
+import io
 
 # Create your views here.
 def index(request):
@@ -19,11 +21,22 @@ def input_view(request):
 
     if request.method == "POST":
 
-        form = ImportFrom(request.POST, request.FILES)
+        form = InputForm(request.POST)
+        pdf_file = request.FILES['pdf_file']
+        pdf_content = pdf_file.read()
+        pdf_buffer = io.BytesIO(pdf_content)
+        form.cleaned_data['PDF_File']
+        reader = PdfReader(pdf_buffer)
+        print(len(reader.pages))
+        page = reader.pages[0]
+        text = page.extract_text()
+        print(text)
 
         if form.is_valid():
 
             form.save()
+            return redirect('index')
+
 
     else:
 
@@ -32,6 +45,8 @@ def input_view(request):
 
 
     return render(request, "MyApp/input.html", {"form": form})
+
+
 
 #def prosses_pdf_data(request, doc_id):
 #    document = teacher.objects.get(id = doc_id)
