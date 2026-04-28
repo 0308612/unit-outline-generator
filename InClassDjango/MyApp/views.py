@@ -1,3 +1,4 @@
+from logging import raiseExceptions
 from xml.dom.minidom import Document
 from .models import teacher
 from django.http import HttpResponseRedirect
@@ -20,7 +21,7 @@ def index(request):
     return render(request, "MyApp/index.html",{'content': teach})
 
 def input_view(request):
-
+    dates = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] #for due date finding
     if request.method == "POST":
 
         form = InputForm(request.POST,request.FILES)
@@ -43,19 +44,22 @@ def input_view(request):
         #    print(text)
 
         if form.is_valid():
+            
+            file_content = request.FILES['PDF_File']
+            file_content.read()
+            pdf_stream = io.BytesIO(b"file_content")
 
-            file_content = form.cleaned_data['PDF_File'].read()
-            pdf_stream = io.BytesIO(file_content)
-
-            reader = PdfReader(pdf_stream)
+            reader = PdfReader(file_content)
             number_of_pages = len(reader.pages)
             page = reader.pages[0]
             text = page.extract_text()
             print(text)
             form.save()
-            response = HttpResponse(text, content_type = 'text/plain')
-            response['pdf text'] = 'attachment; filename="data.txt"'
-            return response, redirect('index')
+            #txtFile = HttpResponse(text, content_type = 'text/plain')  #download txt doc for esier time taking data from pdf 
+            #txtFile['Content-Disposition'] = 'attachment; filename="data.txt"'
+            #txtFile.write(text)
+            #return txtFile
+            return redirect('index')
 
 
     else:
