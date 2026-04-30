@@ -12,7 +12,9 @@ from .models import teacher
 from .forms import InputForm
 import io
 import shutil
+import re
 
+task_weights = []
 
 # Create your views here.
 def index(request):
@@ -21,27 +23,11 @@ def index(request):
     return render(request, "MyApp/index.html",{'content': teach})
 
 def input_view(request):
-    dates = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] #for due date finding
+    #dates = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] #for due date finding
+    #days = [" 01"," 02"," 03"," 04"," 05"," 06"," 07"," 08"," 09"," 10"," 11"," 12"," 13"," 14"," 15"," 16"," 17"," 18"," 19"," 20"," 21"," 22"," 23"," 24"," 25"," 26"," 27"," 28"," 29"," 30"," 31"]
     if request.method == "POST":
 
         form = InputForm(request.POST,request.FILES)
-        #uploaded_file = InputForm(request.FILES['PDF_File'])
-
-        #pdf_file = request.FILES.get('pdf_file')
-        ##pdf_file = InputForm.cleaned_data['pdf_file'] #cleaned data doesn't exist
-        #fs = FileSystemStorage
-        #filename = fs.save(pdf_file.name, pdf_file)
-        #with open(filename, "rb") as fh:
-        #    memoryFile = io.BytesIO(fh.read())
-        #if memoryFile:
-        #    pdf_content = memoryFile.read()
-        #    pdf_buffer = io.BytesIO(pdf_content)
-        #    form.cleaned_data['PDF_File']
-        #    reader = PdfReader(pdf_buffer)
-        #    print(len(reader.pages))
-        #    page = reader.pages[0]
-        #    text = page.extract_text()
-        #    print(text)
 
         if form.is_valid():
             
@@ -53,8 +39,15 @@ def input_view(request):
             number_of_pages = len(reader.pages)
             page = reader.pages[0]
             text = page.extract_text()
-            print(text)
+            #print(text)
             form.save()
+            #matches = []
+            #for month in dates:
+            #    for day in days:
+            #        matches.append(re.findall(day, text))
+            #    matches.append(re.findall(month, text))
+            task_weights = re.findall("(" + r'\d{2}' + "%" + ")", text)
+            print(task_weights)
             #txtFile = HttpResponse(text, content_type = 'text/plain')  #download txt doc for esier time taking data from pdf 
             #txtFile['Content-Disposition'] = 'attachment; filename="data.txt"'
             #txtFile.write(text)
@@ -69,13 +62,3 @@ def input_view(request):
 
 
     return render(request, "MyApp/input.html", {"form": form})
-
-#def prosses_pdf_data(request, doc_id):
-#    document = teacher.objects.get(id = doc_id)
-#    with open(document.pdf_file.path, 'rb') as pdf_file_handle:
-#        pdf_reader = pypdf.PdfReader(pdf_file_handle)
-#        text_content = ""
-#        for page in pdf_reader.pages:
-#            text_content += page.extract_text()
-
-#        return render(request, 'index.html', {'content':text_content})
