@@ -1,12 +1,11 @@
-from logging import raiseExceptions
-from xml.dom.minidom import Document
 from .models import teacher
-from django.http import HttpResponseRedirect
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-from django.core.files.storage import FileSystemStorage
-from pypdf import PdfReader
+from pypdf import PdfReader, PdfWriter
 from pathlib import Path
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 from .models import teacher
 from .forms import InputForm
@@ -41,13 +40,15 @@ def input_view(request):
             text = page.extract_text()
             #print(text)
             form.save()
-            #matches = []
-            #for month in dates:
-            #    for day in days:
-            #        matches.append(re.findall(day, text))
-            #    matches.append(re.findall(month, text))
-            task_weights = re.findall("(" + r'\d{2}' + "%" + ")", text)
-            print(task_weights)
+            #task_weights = re.findall("(" + r'\d{2}' + "%" + ")", text)
+            #task_weights_length = len(task_weights)
+            #for i in range(task_weights_length):
+            #    task_names = re.findall("(.+)" + task_weights[i], text)
+                #print(task_names)
+            week_pattern = r"(?<![ ])\d{1,2}(?![-%: ()])"
+            week = re.findall(week_pattern, text)
+            print(week)
+
             #txtFile = HttpResponse(text, content_type = 'text/plain')  #download txt doc for esier time taking data from pdf 
             #txtFile['Content-Disposition'] = 'attachment; filename="data.txt"'
             #txtFile.write(text)
@@ -62,3 +63,46 @@ def input_view(request):
 
 
     return render(request, "MyApp/input.html", {"form": form})
+
+def report(request, file_content):
+    pdf_file = file_content
+
+    try:
+        merger = PdfWriter()
+
+        input1 = PdfReader(gen_pdf())
+        input2 = PdfReader(pdf_file, "rb")
+
+        merger.append(input1)
+        merger.append(input2)
+
+        buffer = io.BytesIO()
+        merger.write(buffer)
+        buffer.seek(0)
+
+        response = FileResponse(buffer, as_attachment=True, filename="Attachment.pdf")
+    except FileNotFoundError:
+        response = FileResponse(gen_pdf(), as_attachment=True, filename="noFile.pdf")
+
+    return response
+
+def gen_pdf():
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer)
+
+    lines = [('Name:', 'Teaching Area:')]
+
+    teachers = teacher.objects.all()
+
+    for teach in teachers:
+        lines.append(teach.Name, teach.Area)
+
+    table = Table(lines)
+    table.wrapOn(p, 300, 300)
+    table.drawOn(p, 10, 650)
+
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+    return(buffer)
