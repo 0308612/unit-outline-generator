@@ -40,16 +40,11 @@ def input_view(request):
             text = page.extract_text()
             #print(text)
             form.save()
-            #task_weights = re.findall("(" + r'\d{2}' + "%" + ")", text)
-            #task_weights_length = len(task_weights)
-            #for i in range(task_weights_length):
-            #    task_names = re.findall("(.+)" + task_weights[i], text)
-            #print(task_names)
-            #week_pattern = r"(?<![ qQ])(?<=[)\S])\b(?:[1-9]1[0-9]2[0-5])\b(?![-%: (])(?=[\S])"
-            week_pattern = r"(?:[1-9]1[0-9]2[0-9])"
-            week = re.findall(week_pattern, text)
-            print(week)
-            #print(text)
+            task_weights = re.findall("(" + r'\d{2}' + "%" + ")", text)
+            print(task_weights)
+            weights_pattern = '|'.join(map(re.escape, task_weights))
+            task_names = re.findall(rf"[a-zA-Z]+\s\({weights_pattern}\)" '|' rf"[a-zA-Z]+\s[a-zA-Z]+\s\({weights_pattern}\)", text)
+            print(task_names)
 
             #txtFile = HttpResponse(text, content_type = 'text/plain')  #download txt doc for esier time cheaking data from pdf 
             #txtFile['Content-Disposition'] = 'attachment; filename="data.txt"'
