@@ -42,9 +42,18 @@ def input_view(request):
             task_weights = re.findall("(" + r'\d{2}' + "%" + ")", text)
             print(task_weights)
             tasks = []
+            upper = 0
             for i in range(len(task_weights)):
                 tasks.append(re.findall(rf"[a-zA-Z]+\s\({task_weights[i]}\)" '|' rf"[a-zA-Z]+\s[a-zA-Z]+\s\({task_weights[i]}\)", text))
+            for i in range(len(tasks)):
+                for j in range(len(tasks[i])):
+                    if j.isupper():
+                        upper += 1
+                if upper >= 2 and tasks[i].count(" ") > 2:
+                    tasks[i] = re.sub(r".*(?=[A-Z])", "", str(tasks[i]))
+                upper = 0
             print(tasks)
+
 
             #txtFile = HttpResponse(text, content_type = 'text/plain')  #download txt doc for esier time cheaking data from pdf 
             #txtFile['Content-Disposition'] = 'attachment; filename="data.txt"'
