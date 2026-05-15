@@ -6,9 +6,8 @@ from pathlib import Path
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table
 from django.contrib.staticfiles.storage import staticfiles_storage
-
-from .models import teacher
 from .forms import InputForm
+
 import io
 import shutil
 import re
@@ -45,7 +44,7 @@ def input_view(request):
             tasks = []
             for i in range(len(task_weights)):
                 tasks.append(re.findall(rf"[a-zA-Z]+\s\({task_weights[i]}\)" '|' rf"[a-zA-Z]+\s[a-zA-Z]+\s\({task_weights[i]}\)", text))
-            print(task_names)
+            print(tasks)
 
             #txtFile = HttpResponse(text, content_type = 'text/plain')  #download txt doc for esier time cheaking data from pdf 
             #txtFile['Content-Disposition'] = 'attachment; filename="data.txt"'
