@@ -42,8 +42,9 @@ def input_view(request):
             form.save()
             task_weights = re.findall("(" + r'\d{2}' + "%" + ")", text)
             print(task_weights)
-            weights_pattern = '|'.join(task_weights) #problem
-            task_names = re.findall(rf"[a-zA-Z]+\s\({weights_pattern}\)" '|' rf"[a-zA-Z]+\s[a-zA-Z]+\s\({weights_pattern}\)", text)
+            tasks = []
+            for i in range(len(task_weights)):
+                tasks.append(re.findall(rf"[a-zA-Z]+\s\({task_weights[i]}\)" '|' rf"[a-zA-Z]+\s[a-zA-Z]+\s\({task_weights[i]}\)", text))
             print(task_names)
 
             #txtFile = HttpResponse(text, content_type = 'text/plain')  #download txt doc for esier time cheaking data from pdf 
