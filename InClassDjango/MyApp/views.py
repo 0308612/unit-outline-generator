@@ -30,7 +30,7 @@ def input_view(request):
             file_content = request.FILES['PDF_File']
             file_content.read()
             pdf_stream = io.BytesIO(b"file_content")
-
+            form.save()
             reader = PdfReader(file_content)
             number_of_pages = len(reader.pages)
             page = reader.pages[0]
@@ -52,12 +52,15 @@ def input_view(request):
                 upper = 0
             sorted_tasks = sorted(tasks, key = text.find)
             split_names = []
-            for m in range(len(sorted_tasks)):
-                split_names.append(sorted_tasks[m].split("("))
+            for i in range(len(sorted_tasks)):
+                split_names.append(sorted_tasks[i].split("("))
             split_tasks = list(itertools.chain(*split_names))
-            for b in range(len(split_tasks)):
-                if split_tasks[b].endswith(")"):
-                    split_tasks[b] = re.sub(r"\)", "", str(split_tasks[b]))
+            for i in range(len(split_tasks)):
+                if split_tasks[i].endswith(")"):
+                    split_tasks[i] = re.sub(r"\)", "", str(split_tasks[i]))
+
+            #teacher.objects.create(task1 = split_tasks[0], task1_weight = split_tasks[1], task2 = split_tasks[2], task2_weight = split_tasks[3], task3 = split_tasks[4], task3_weight = split_tasks[5], task4 = split_tasks[6], task4_weight = split_tasks[7])
+            # ^ should work but gives null error for teacher.VET
             teacher.task1 = split_tasks[0]
             teacher.task1_weight = split_tasks[1]
             teacher.task2 = split_tasks[2]
@@ -80,8 +83,7 @@ def input_view(request):
             #txtFile['Content-Disposition'] = 'attachment; filename="data.txt"'
             #txtFile.write(text)
             #return txtFile
-
-            form.save()
+            
             return redirect('index')
 
     else:
