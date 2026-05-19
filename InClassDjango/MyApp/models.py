@@ -9,6 +9,14 @@ class teacher(models.Model):
     VET = models.BooleanField()
     PDF_Title = models.CharField(max_length=100)
     PDF_File = models.FileField(upload_to = 'uploads/')
+    task1 = models.CharField()
+    task2 = models.CharField()
+    task3 = models.CharField()
+    task4 = models.CharField()
+    task1_weight = models.CharField()
+    task2_weight = models.CharField()
+    task3_weight = models.CharField()
+    task4_weight = models.CharField()
 
     def __str__(self):
-        return self.PDF_Title
+        return self.PDF_Title and self.task1 and self.task1_weight and self.task2 and self.task2_weight and self.task3 and self.task3_weight and self.task4 and self.task4_weight

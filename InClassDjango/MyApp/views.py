@@ -11,6 +11,7 @@ from .forms import InputForm
 import io
 import shutil
 import re
+import itertools
 
 task_weights = []
 
@@ -21,8 +22,6 @@ def index(request):
     return render(request, "MyApp/index.html",{'content': teach})
 
 def input_view(request):
-    #dates = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] #for due date finding
-    #days = [" 01"," 02"," 03"," 04"," 05"," 06"," 07"," 08"," 09"," 10"," 11"," 12"," 13"," 14"," 15"," 16"," 17"," 18"," 19"," 20"," 21"," 22"," 23"," 24"," 25"," 26"," 27"," 28"," 29"," 30"," 31"]
     if request.method == "POST":
 
         form = InputForm(request.POST,request.FILES)
@@ -37,28 +36,52 @@ def input_view(request):
             page = reader.pages[0]
             text = page.extract_text()
             #print(text)
-            form.save()
             task_weights = re.findall("(" + r'\d{2}' + "%" + ")", text)
             task_weights = list(set(task_weights))
-            print(task_weights)
             tasks = []
             upper = 0
             for i in range(len(task_weights)):
                 tasks.append(re.findall(rf"\w+\s\({task_weights[i]}\)" '|' rf"[a-zA-Z]+\s[a-z]+\s\({task_weights[i]}\)", text))
+            tasks = list(itertools.chain(*tasks))
             for i in range(len(tasks)):
                 for j in tasks[i]:
                     if j.isupper():
                         upper += 1
-                if upper >= 2:
-                    tasks[i] = re.sub(r"*(?=[A-Z])", "", str(tasks[i]))
+                if upper <= 2:
+                    tasks[i] = re.sub(r".*(?=[A-Z])", "", str(tasks[i]))
                 upper = 0
-            print(tasks)
+            sorted_tasks = sorted(tasks, key = text.find)
+            split_names = []
+            for m in range(len(sorted_tasks)):
+                split_names.append(sorted_tasks[m].split("("))
+            split_tasks = list(itertools.chain(*split_names))
+            for b in range(len(split_tasks)):
+                if split_tasks[b].endswith(")"):
+                    split_tasks[b] = re.sub(r"\)", "", str(split_tasks[b]))
+            teacher.task1 = split_tasks[0]
+            teacher.task1_weight = split_tasks[1]
+            teacher.task2 = split_tasks[2]
+            teacher.task2_weight = split_tasks[3]
+            teacher.task3 = split_tasks[4]
+            teacher.task3_weight = split_tasks[5]
+            teacher.task4 = split_tasks[6]
+            teacher.task4_weight = split_tasks[7]
 
+            print("task 1 = " + teacher.task1)
+            print("task 1 weight = " + teacher.task1_weight)
+            print("task 2 = " +  teacher.task2)
+            print("task 2 weight = " + teacher.task2_weight)
+            print("task 3 = " + teacher.task3)
+            print("task 3 weight = " + teacher.task3_weight)
+            print("task 4 = " + teacher.task4)
+            print("task 4 weight = " + teacher.task4_weight)
 
             #txtFile = HttpResponse(text, content_type = 'text/plain')  #download txt doc for esier time cheaking data from pdf 
             #txtFile['Content-Disposition'] = 'attachment; filename="data.txt"'
             #txtFile.write(text)
             #return txtFile
+
+            form.save()
             return redirect('index')
 
     else:
